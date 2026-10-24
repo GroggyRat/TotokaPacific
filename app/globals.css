@@ -114,10 +114,10 @@ html.has-cursor * {
 }
 @media (max-aspect-ratio: 1/1) {
   .globe-frame {
-    width: 125vw;
-    height: 125vw;
-    left: calc(50% - 62.5vw);
-    top: calc(38svh - 62.5vw);
+    width: 110vw;
+    height: 110vw;
+    left: calc(50% - 55vw);
+    top: calc(38svh - 55vw);
   }
 }
 
@@ -130,4 +130,20 @@ html.has-cursor * {
 }
 @media (prefers-reduced-motion: reduce) {
   .scroll-tick { animation: none; }
+}
+
+/* Safety net: if scripts never run, the preloader clears itself. */
+.preloader {
+  animation: preloader-failsafe 0.4s ease 4s forwards;
+}
+@keyframes preloader-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Horizontal swipes on the globe turn it; vertical swipes scroll. */
+[data-globe] {
+  touch-action: pan-y;
 }

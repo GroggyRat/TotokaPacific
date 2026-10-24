@@ -41,6 +41,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const dotsVert = /* glsl */ `
   uniform float uSize;
   uniform float uOpacity;
+  uniform float uBoost;
   uniform vec3 uOrigin;
   varying float vAlpha;
   varying float vNear;
@@ -48,7 +49,7 @@ const dotsVert = /* glsl */ `
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     vec3 n = normalize(normalMatrix * position);
     float facing = dot(n, normalize(-mv.xyz));
-    vAlpha = smoothstep(0.0, 0.45, facing) * uOpacity;
+    vAlpha = smoothstep(0.0, 0.45, facing) * uOpacity * uBoost;
     vNear = 1.0 - smoothstep(0.0, 0.16, distance(position, uOrigin));
     gl_PointSize = min(uSize / -mv.z, uSize * 0.9);
     gl_Position = projectionMatrix * mv;
@@ -132,9 +133,8 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         const bytes = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
         const ints = new Int16Array(bytes.buffer);
-        const every = low ? 2 : 1; // phones draw half the dots
         const pos: number[] = [];
-        for (let i = 0; i < ints.length; i += 2 * every) {
+        for (let i = 0; i < ints.length; i += 2) {
           const v = ll(ints[i] / 100, ints[i + 1] / 100, 1.001);
           pos.push(v.x, v.y, v.z);
         }
@@ -157,8 +157,9 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         transparent: true,
         depthWrite: false,
         uniforms: {
-          uSize: { value: (low ? 5.2 : 4.6) * dpr },
+          uSize: { value: (low ? 6.4 : 4.6) * dpr },
           uOpacity: { value: 1 },
+          uBoost: { value: low ? 1.35 : 1 },
           uColor: { value: BONE },
           uGold: { value: GOLD },
           uOrigin: { value: origin.clone().multiplyScalar(1.001) },
@@ -183,7 +184,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        uniforms: { uSize: { value: 30 * dpr }, uColor: { value: GOLD } },
+        uniforms: { uSize: { value: (low ? 44 : 30) * dpr }, uColor: { value: GOLD } },
       }),
     [dpr],
   );
@@ -218,9 +219,9 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
     const wide = aspect >= 1;
 
     // Framing: globe to the right on wide screens. On tall screens the globe
-    // is 1.25× the screen width, centred at 38% of the height.
+    // is 1.1× the screen width, centred at 38% of the height.
     const TAN = Math.tan((35 / 2) * D2R);
-    const camZ = wide ? 3.3 : Math.sqrt(1 + Math.pow(1 / (TAN * 1.25 * aspect), 2));
+    const camZ = wide ? 3.3 : Math.sqrt(1 + Math.pow(1 / (TAN * 1.1 * aspect), 2));
     const offX = wide ? 0.62 : 0;
     const offY = wide ? -0.18 : 0.24 * TAN * camZ;
     camera.position.z = lerp(camZ, 1.16, e);
@@ -238,8 +239,11 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
       if (!heroState.dragging) heroState.drag *= Math.pow(0.12, delta);
       sway.current = Math.sin(t * 0.09) * 0.14;
       const k = 1 - e;
-      tilt.current.x = lerp(tilt.current.x, heroState.pointer.y * 0.12, 1 - Math.pow(0.02, delta));
-      tilt.current.y = lerp(tilt.current.y, heroState.pointer.x * 0.16, 1 - Math.pow(0.02, delta));
+      // Without a mouse, a slow figure-of-eight drift keeps the globe alive.
+      const px = low ? Math.sin(t * 0.21) * 0.6 : heroState.pointer.x;
+      const py = low ? Math.sin(t * 0.13) * 0.5 : heroState.pointer.y;
+      tilt.current.x = lerp(tilt.current.x, py * 0.12, 1 - Math.pow(0.02, delta));
+      tilt.current.y = lerp(tilt.current.y, px * 0.16, 1 - Math.pow(0.02, delta));
       inner.current.rotation.y = base.yaw + (sway.current + heroState.drag + tilt.current.y) * k;
       outer.current.rotation.x = base.pitch + tilt.current.x * k;
     }
@@ -311,7 +315,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
             }}
             points={pts}
             color="#e0a458"
-            lineWidth={low ? 1.1 : 1.35}
+            lineWidth={low ? 1.9 : 1.35}
             transparent
             opacity={0.85}
             depthWrite={false}

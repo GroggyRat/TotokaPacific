@@ -37,7 +37,7 @@ export function Preloader() {
         .from(
           split.chars,
           {
-            x: () => rand(-140, 140),
+            x: () => rand(-140, 140) * (window.innerWidth < 640 ? 0.5 : 1),
             y: () => rand(-90, 90),
             rotate: () => rand(-50, 50),
             autoAlpha: 0,
@@ -95,10 +95,15 @@ export function Preloader() {
       aria-hidden="true"
     >
       <div className="pl-inner absolute inset-0">
-        <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-center gap-[0.5em] px-4 text-[clamp(1.6rem,6vw,5.5rem)]">
-          <Mark className="pl-mark h-[0.85em] w-[0.85em] shrink-0 text-accent" />
-          <h2 ref={word} className="invisible whitespace-nowrap font-display font-light leading-none tracking-[0.08em]">
-            {preloader.word}
+        <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-start gap-[0.4em] px-6 text-[clamp(2.4rem,14vw,5.5rem)] sm:flex-row sm:items-center sm:justify-center sm:gap-[0.5em] sm:px-4 sm:text-[clamp(1.6rem,6vw,5.5rem)]">
+          <Mark className="pl-mark h-[0.7em] w-[0.7em] shrink-0 text-accent sm:h-[0.85em] sm:w-[0.85em]" />
+          <h2 ref={word} className="invisible font-display font-light leading-[0.95] tracking-[0.06em] sm:whitespace-nowrap">
+            {preloader.word.split(" ").map((w, i) => (
+              <span key={i} className="block sm:inline">
+                {w}
+                {i === 0 && <span className="hidden sm:inline"> </span>}
+              </span>
+            ))}
           </h2>
         </div>
         <div className="absolute inset-x-4 bottom-6 flex items-end justify-between gap-6 sm:inset-x-8 sm:bottom-8">

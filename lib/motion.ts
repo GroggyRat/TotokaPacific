@@ -6,6 +6,7 @@ import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 // Weighty, smooth curves. Nothing linear, nothing bouncy.
 export const EASE = {

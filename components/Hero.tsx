@@ -88,10 +88,43 @@ export function Hero() {
     { scope: root },
   );
 
-  // Pointer tilt and drag for the globe.
+  // Pointer tilt and drag for the globe. On touch, a horizontal swipe turns
+  // the globe and a vertical swipe scrolls the page as normal.
   useEffect(() => {
-    if (isCoarsePointer()) return;
     const el = root.current!;
+    if (isCoarsePointer()) {
+      let sx = 0, sy = 0, lx = 0, mode: "" | "h" | "v" = "";
+      const ts = (e: TouchEvent) => {
+        if (!(e.target as HTMLElement).closest("[data-globe]")) return;
+        sx = lx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        mode = "";
+      };
+      const tm = (e: TouchEvent) => {
+        const t = e.touches[0];
+        if (!mode) {
+          const dx = Math.abs(t.clientX - sx), dy = Math.abs(t.clientY - sy);
+          if (dx + dy > 8) mode = dx > dy ? "h" : "v";
+        }
+        if (mode === "h") {
+          heroState.dragging = true;
+          heroState.drag = Math.max(-1.6, Math.min(1.6, heroState.drag + (t.clientX - lx) * 0.008));
+          lx = t.clientX;
+        }
+      };
+      const te = () => {
+        heroState.dragging = false;
+        mode = "";
+      };
+      el.addEventListener("touchstart", ts, { passive: true });
+      el.addEventListener("touchmove", tm, { passive: true });
+      el.addEventListener("touchend", te);
+      return () => {
+        el.removeEventListener("touchstart", ts);
+        el.removeEventListener("touchmove", tm);
+        el.removeEventListener("touchend", te);
+      };
+    }
     let lastX = 0;
     const move = (e: PointerEvent) => {
       heroState.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -158,11 +191,11 @@ export function Hero() {
           <h1
             id="hero-title"
             ref={title}
-            className="font-display text-[clamp(3.6rem,12vw,13rem)] font-light leading-[0.88] tracking-[-0.035em] lg:col-span-8"
-            style={{ fontVariationSettings: '"opsz" 144, "SOFT" 50' }}
+            className="font-display text-[clamp(3.6rem,17vw,13rem)] lg:text-[clamp(3.6rem,12vw,13rem)] font-normal leading-[0.9] tracking-[-0.02em] lg:col-span-8"
+            style={{ fontVariationSettings: '"opsz" 60, "SOFT" 0' }}
           >
             <span className="block">{hero.lines[0]}</span>
-            <span className="block italic text-bone-2">{hero.lines[1]}</span>
+            <span className="block text-bone-2">{hero.lines[1]}</span>
           </h1>
           <div className="lg:col-span-4 lg:pb-4">
             <p className="h-fade max-w-[30ch] text-[0.98rem] leading-relaxed text-bone/80">{hero.sentence}</p>
