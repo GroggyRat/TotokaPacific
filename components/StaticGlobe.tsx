@@ -8,18 +8,18 @@ export function StaticGlobe({ showArcs, className = "" }: { showArcs: boolean; c
     <svg viewBox="0 0 500 500" className={className} aria-hidden="true" focusable="false">
       <defs>
         <pattern id="sg-dots" width="4.2" height="4.2" patternUnits="userSpaceOnUse">
-          <circle cx="2.1" cy="2.1" r="0.85" fill="var(--color-bone)" fillOpacity="0.5" />
+          <circle cx="2.1" cy="2.1" r="0.85" fill="var(--color-fg)" fillOpacity="0.5" />
         </pattern>
         <clipPath id="sg-clip">
           <circle cx="250" cy="250" r="240" />
         </clipPath>
       </defs>
-      <circle cx="250" cy="250" r="240" fill="#0b1524" />
+      <circle cx="250" cy="250" r="240" fill="var(--globe-sea)" />
       <g clipPath="url(#sg-clip)">
-        <path d={globeStatic.graticule} fill="none" stroke="var(--color-bone)" strokeOpacity="0.05" strokeWidth="0.6" />
+        <path d={globeStatic.graticule} fill="none" stroke="var(--color-fg)" strokeOpacity="0.05" strokeWidth="0.6" />
         <path d={globeStatic.land} fill="url(#sg-dots)" />
       </g>
-      <circle cx="250" cy="250" r="240.5" fill="none" stroke="#8fa6c4" strokeOpacity="0.35" strokeWidth="1" />
+      <circle cx="250" cy="250" r="240.5" fill="none" stroke="var(--globe-rim)" strokeOpacity="0.35" strokeWidth="1" />
       {showArcs && (
         <g fill="none" stroke="var(--color-accent)" strokeWidth="1.1" strokeOpacity="0.85">
           {globeStatic.arcs.map((d, i) => (

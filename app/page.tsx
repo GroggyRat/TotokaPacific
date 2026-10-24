@@ -1,7 +1,17 @@
 import { Preloader } from "@/components/Preloader";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { about } from "@/content/site";
+import { About } from "@/components/About";
+import { Services } from "@/components/Services";
+import { Voyage } from "@/components/Voyage";
+import { Process } from "@/components/Process";
+import { Numbers } from "@/components/Numbers";
+import { Founder } from "@/components/Founder";
+import { Faq } from "@/components/Faq";
+import { Contact } from "@/components/Contact";
+import { Footer } from "@/components/Footer";
+import { InvertBlock } from "@/components/InvertBlock";
+import { MasiLine } from "@/components/MasiLine";
 
 export default function Home() {
   return (
@@ -10,13 +20,21 @@ export default function Home() {
       <Header />
       <main id="main">
         <Hero />
-        {/* Step 2 starts here. Temporary end-of-hero stand-in so the dissolve has somewhere to land. */}
-        <section id="about" className="relative flex min-h-[100svh] items-center bg-ink-2 px-5 sm:px-10">
-          <p className="label text-mist">
-            {about.num} — {about.label} · next section, built in step 2
-          </p>
-        </section>
+        <About />
+        <Services />
+        <Voyage />
+        <Process />
+        <InvertBlock>
+          <Numbers />
+          <Founder />
+        </InvertBlock>
+        <div className="px-5 pt-20 text-accent/60 sm:px-10">
+          <MasiLine />
+        </div>
+        <Faq />
+        <Contact />
       </main>
+      <Footer />
     </>
   );
 }

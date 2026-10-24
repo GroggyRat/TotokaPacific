@@ -90,7 +90,7 @@ export function Preloader() {
     </noscript>
     <div
       ref={root}
-      className="preloader fixed inset-0 z-[120] bg-ink-2 text-bone"
+      className="preloader fixed inset-0 z-[120] bg-ground-2 text-fg"
       style={{ clipPath: "inset(0% 0% 0% 0%)" }}
       aria-hidden="true"
     >
@@ -112,7 +112,7 @@ export function Preloader() {
             000
           </span>
         </div>
-        <div className="pl-bar absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-bone/40" />
+        <div className="pl-bar absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-fg/40" />
       </div>
     </div>
     </>

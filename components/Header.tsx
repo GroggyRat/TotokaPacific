@@ -5,6 +5,7 @@ import { header, nav } from "@/content/site";
 import { gsap, onIntro, prefersReducedMotion } from "@/lib/motion";
 import { Wordmark } from "./Wordmark";
 import { Magnetic } from "./Magnetic";
+import { ThemeToggle } from "./ThemeToggle";
 
 function SuvaClock() {
   const [time, setTime] = useState("--:--");
@@ -17,7 +18,7 @@ function SuvaClock() {
   }, []);
   return (
     <span className="label tabular-nums">
-      {header.clockLabel} <span className="text-bone">{time}</span> {header.clockSuffix}
+      {header.clockLabel} <span className="text-white">{time}</span> {header.clockSuffix}
     </span>
   );
 }
@@ -32,19 +33,23 @@ export function Header() {
   }, []);
 
   return (
-    <header ref={root} className="fixed inset-x-0 top-0 z-50 text-bone mix-blend-difference">
+    <header ref={root} className="fixed inset-x-0 top-0 z-50 text-white mix-blend-difference">
       <div className="flex items-center justify-between gap-6 px-5 py-5 sm:px-10 sm:py-7">
         <a href="#top" aria-label="Totoka Pacific, back to top" className="whitespace-nowrap text-[0.8rem] sm:text-base">
           <Wordmark />
         </a>
-        <div className="hidden text-mist md:block">
+        <div className="hidden items-center gap-8 text-white/55 md:flex">
           <SuvaClock />
+          <ThemeToggle />
         </div>
-        <nav aria-label="Sections" className="flex items-center gap-7">
-          <ul className="hidden items-center gap-7 lg:flex">
+        <nav aria-label="Sections" className="flex items-center gap-4 sm:gap-7">
+          <div className="md:hidden">
+            <ThemeToggle />
+          </div>
+          <ul className="hidden items-center gap-7 xl:flex">
             {nav.slice(0, 4).map((n) => (
               <li key={n.id}>
-                <a href={`#${n.id}`} className="label text-bone/75 transition-colors duration-300 hover:text-bone">
+                <a href={`#${n.id}`} className="label text-white/70 transition-colors duration-300 hover:text-white">
                   {n.label}
                 </a>
               </li>
@@ -53,9 +58,10 @@ export function Header() {
           <Magnetic>
             <a
               href="#contact"
-              className="label inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-bone/40 px-3.5 py-2 sm:px-4 sm:py-2.5 transition-colors duration-500 hover:border-bone hover:bg-bone hover:text-ink"
+              className="label inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-white/40 px-3.5 py-2 transition-colors duration-500 hover:border-white hover:bg-white hover:text-black sm:px-4 sm:py-2.5"
             >
-              {header.cta} <span aria-hidden="true">→</span>
+              <span className="sm:hidden">{header.ctaShort}</span>
+              <span className="hidden sm:inline">{header.cta}</span> <span aria-hidden="true">→</span>
             </a>
           </Magnetic>
         </nav>

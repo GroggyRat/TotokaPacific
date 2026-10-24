@@ -7,11 +7,23 @@ import * as THREE from "three";
 import type { Line2 } from "three-stdlib";
 import { globe } from "@/content/site";
 import { heroState } from "@/lib/heroState";
+import { THEME_EVENT } from "@/lib/theme";
+
+// Globe colours come from the CSS theme tokens and ease across on change.
+function readPalette() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = (n: string) => cs.getPropertyValue(n).trim();
+  return {
+    light: document.documentElement.dataset.theme === "light",
+    sea: new THREE.Color(v("--globe-sea") || "#0b1524"),
+    dot: new THREE.Color(v("--color-fg") || "#eee8dd"),
+    accent: new THREE.Color(v("--color-accent") || "#e0a458"),
+    rim: new THREE.Color(v("--globe-rim") || "#8fa6c4"),
+  };
+}
 
 const D2R = Math.PI / 180;
 const SEG = 72;
-const GOLD = new THREE.Color("#e0a458");
-const BONE = new THREE.Color("#eee8dd");
 
 function ll(lat: number, lon: number, r = 1) {
   const phi = (90 - lat) * D2R;
@@ -95,10 +107,11 @@ const atmoVert = /* glsl */ `
 `;
 const atmoFrag = /* glsl */ `
   uniform float uOpacity;
+  uniform vec3 uColor;
   varying vec3 vN;
   void main() {
     float i = pow(max(0.0, 0.62 - dot(vN, vec3(0.0, 0.0, 1.0))), 4.0);
-    gl_FragColor = vec4(vec3(0.56, 0.65, 0.77), i * uOpacity);
+    gl_FragColor = vec4(uColor, i * uOpacity);
   }
 `;
 
@@ -110,7 +123,24 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
   const [dots, setDots] = useState<THREE.BufferGeometry | null>(null);
   const lines = useRef<(Line2 | null)[]>([]);
   const ring = useRef<THREE.Mesh>(null);
+  const sea = useRef<THREE.MeshBasicMaterial>(null);
   const readyFired = useRef(false);
+  const target = useRef(readPalette());
+  const now = useMemo(() => readPalette(), []);
+
+  useEffect(() => {
+    const on = () => {
+      target.current = readPalette();
+      const add = !target.current.light;
+      pulseMat.blending = add ? THREE.AdditiveBlending : THREE.NormalBlending;
+      atmoMat.blending = add ? THREE.AdditiveBlending : THREE.NormalBlending;
+      pulseMat.needsUpdate = atmoMat.needsUpdate = true;
+    };
+    on();
+    window.addEventListener(THEME_EVENT, on);
+    return () => window.removeEventListener(THEME_EVENT, on);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const origin = useMemo(() => ll(globe.origin.lat, globe.origin.lon), []);
   const arcs = useMemo(() => globe.destinations.map((d) => arcPoints(origin, ll(d.lat, d.lon))), [origin]);
@@ -160,8 +190,8 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
           uSize: { value: (low ? 6.4 : 4.6) * dpr },
           uOpacity: { value: 1 },
           uBoost: { value: low ? 1.35 : 1 },
-          uColor: { value: BONE },
-          uGold: { value: GOLD },
+          uColor: { value: now.dot.clone() },
+          uGold: { value: now.accent.clone() },
           uOrigin: { value: origin.clone().multiplyScalar(1.001) },
         },
       }),
@@ -184,7 +214,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        uniforms: { uSize: { value: (low ? 44 : 30) * dpr }, uColor: { value: GOLD } },
+        uniforms: { uSize: { value: (low ? 44 : 30) * dpr }, uColor: { value: now.accent.clone() } },
       }),
     [dpr],
   );
@@ -197,7 +227,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         depthWrite: false,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
-        uniforms: { uOpacity: { value: 0.5 } },
+        uniforms: { uOpacity: { value: 0.5 }, uColor: { value: now.rim.clone() } },
       }),
     [],
   );
@@ -248,10 +278,21 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
       outer.current.rotation.x = base.pitch + tilt.current.x * k;
     }
 
+    // Ease colours toward the current theme.
+    const k2 = 1 - Math.pow(0.04, delta);
+    const P = target.current;
+    sea.current?.color.lerp(P.sea, k2);
+    (dotMat.uniforms.uColor.value as THREE.Color).lerp(P.dot, k2);
+    (dotMat.uniforms.uGold.value as THREE.Color).lerp(P.accent, k2);
+    (pulseMat.uniforms.uColor.value as THREE.Color).lerp(P.accent, k2);
+    (atmoMat.uniforms.uColor.value as THREE.Color).lerp(P.rim, k2);
+    (ring.current?.material as THREE.MeshBasicMaterial | undefined)?.color.lerp(P.accent, k2);
+    lines.current.forEach((l) => (l?.material as unknown as { color: THREE.Color } | undefined)?.color.lerp(P.accent, k2));
+
     // Dissolve as the camera reaches Fiji.
     const fade = 1 - smooth(0.55, 0.92, p);
     dotMat.uniforms.uOpacity.value = fade;
-    atmoMat.uniforms.uOpacity.value = 0.5 * fade;
+    atmoMat.uniforms.uOpacity.value = (P.light ? 0.3 : 0.5) * fade;
 
     // Arcs draw out after the intro, staggered.
     const since = heroState.introAt < 0 ? -1 : t - heroState.introAt;
@@ -301,7 +342,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
       <group ref={inner}>
         <mesh>
           <sphereGeometry args={[0.996, low ? 48 : 72, low ? 48 : 72]} />
-          <meshBasicMaterial color="#0b1524" />
+          <meshBasicMaterial ref={sea} color={now.sea} />
         </mesh>
         <mesh scale={1.1} material={atmoMat}>
           <sphereGeometry args={[1, 48, 48]} />
@@ -314,7 +355,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
               lines.current[i] = l as unknown as Line2 | null;
             }}
             points={pts}
-            color="#e0a458"
+            color={now.accent}
             lineWidth={low ? 1.9 : 1.35}
             transparent
             opacity={0.85}
@@ -324,7 +365,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         <points geometry={pulseGeo} material={pulseMat} frustumCulled={false} />
         <mesh ref={ring} position={origin.clone().multiplyScalar(1.003)} quaternion={ringQuat}>
           <ringGeometry args={[0.018, 0.021, 48]} />
-          <meshBasicMaterial color="#e0a458" transparent depthWrite={false} />
+          <meshBasicMaterial color={now.accent} transparent depthWrite={false} />
         </mesh>
       </group>
     </group>

@@ -155,7 +155,7 @@ export function Hero() {
   }, [ready]);
 
   return (
-    <section id="top" ref={root} aria-labelledby="hero-title" className="relative h-[100svh] overflow-hidden bg-ink">
+    <section id="top" ref={root} aria-labelledby="hero-title" className="relative h-[100svh] overflow-hidden bg-ground">
       {/* Globe layer */}
       <div data-globe data-cursor={hero.drag} className="absolute inset-0 select-none" aria-hidden="true">
         {hero.video.src && (
@@ -179,7 +179,7 @@ export function Hero() {
       </div>
 
       {/* Legibility shade on the type side */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-full bg-[linear-gradient(90deg,rgba(6,11,20,0.85)_0%,rgba(6,11,20,0.35)_45%,rgba(6,11,20,0)_70%)] max-[1000px]:bg-[linear-gradient(0deg,rgba(6,11,20,0.9)_0%,rgba(6,11,20,0.2)_55%,rgba(6,11,20,0)_75%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-full hero-shade" />
 
       <div className="pointer-events-none relative z-10 flex h-full flex-col justify-between px-5 pb-8 pt-24 sm:px-10 sm:pb-10 sm:pt-32">
         <div className="h-top flex flex-wrap gap-x-8 gap-y-1 text-mist">
@@ -195,13 +195,13 @@ export function Hero() {
             style={{ fontVariationSettings: '"opsz" 60, "SOFT" 0' }}
           >
             <span className="block">{hero.lines[0]}</span>
-            <span className="block text-bone-2">{hero.lines[1]}</span>
+            <span className="block text-fg-2">{hero.lines[1]}</span>
           </h1>
           <div className="lg:col-span-4 lg:pb-4">
-            <p className="h-fade max-w-[30ch] text-[0.98rem] leading-relaxed text-bone/80">{hero.sentence}</p>
+            <p className="h-fade max-w-[30ch] text-[0.98rem] leading-relaxed text-fg/80">{hero.sentence}</p>
             <div className="h-fade mt-8 flex items-center gap-4 text-mist">
-              <span className="relative block h-10 w-px overflow-hidden bg-bone/15">
-                <span className="scroll-tick absolute inset-x-0 top-0 h-1/2 bg-bone" />
+              <span className="relative block h-10 w-px overflow-hidden bg-fg/15">
+                <span className="scroll-tick absolute inset-x-0 top-0 h-1/2 bg-fg" />
               </span>
               <span className="label">{hero.scroll}</span>
             </div>
@@ -209,7 +209,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div aria-hidden="true" className="h-dissolve pointer-events-none invisible absolute inset-0 z-20 bg-ink-2 opacity-0" />
+      <div aria-hidden="true" className="h-dissolve pointer-events-none invisible absolute inset-0 z-20 bg-ground opacity-0" />
     </section>
   );
 }

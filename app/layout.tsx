@@ -3,11 +3,11 @@ import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import { company } from "@/content/site";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Cursor } from "@/components/Cursor";
+import { themeScript } from "@/lib/themeScript";
 import "./globals.css";
 
 const display = Fraunces({
   subsets: ["latin"],
-  style: ["normal", "italic"],
   axes: ["opsz", "SOFT"],
   variable: "--font-fraunces",
 });
@@ -31,11 +31,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-FJ" className={`${display.variable} ${body.variable}`}>
+    <html lang="en-FJ" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
         <a
           href="#main"
-          className="label sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-bone focus:px-3 focus:py-2 focus:text-ink"
+          className="label sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-fg focus:px-3 focus:py-2 focus:text-ground"
         >
           Skip to content
         </a>

@@ -65,12 +65,12 @@ export function Cursor() {
 
   return (
     <div aria-hidden="true" className={`pointer-events-none fixed inset-0 z-[150] mix-blend-difference ${on ? "" : "hidden"}`}>
-      <div ref={dot} className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-bone" />
+      <div ref={dot} className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-white" />
       <div
         ref={ring}
-        className="absolute -left-[18px] -top-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-bone/80"
+        className="absolute -left-[18px] -top-[18px] flex h-9 w-9 items-center justify-center rounded-full border border-white/80"
       >
-        <span className="label text-[0.32rem] tracking-[0.18em] text-bone">{label}</span>
+        <span className="label text-[0.32rem] tracking-[0.18em] text-white">{label}</span>
       </div>
     </div>
   );
