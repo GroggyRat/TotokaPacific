@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, Inter_Tight, IBM_Plex_Mono } from "next/font/google";
+import { Archivo, Inter_Tight, IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import { company } from "@/content/site";
 import "./globals.css";
 
-const display = Barlow_Condensed({
+const display = Archivo({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-barlow-condensed",
+  axes: ["wdth"],
+  variable: "--font-archivo",
 });
 const body = Inter_Tight({
   subsets: ["latin"],

@@ -31,12 +31,12 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-paper">
       <div className="mx-auto flex h-14 max-w-[88rem] items-center justify-between px-4 sm:px-6 lg:px-10">
-        <a href="#top" className="text-navy text-xl" aria-label="Totoka Pacific, back to top">
+        <a href="#top" className="text-navy text-lg" aria-label="Totoka Pacific, back to top">
           <Wordmark />
         </a>
 
         <nav aria-label="Sections" className="hidden lg:block">
-          <ul className="flex gap-6 font-mono text-[0.78rem] uppercase tracking-wider">
+          <ul className="flex gap-7 text-[0.95rem]">
             {nav.map((n) => {
               const isActive = active === n.id;
               return (
@@ -44,12 +44,11 @@ export function Nav() {
                   <a
                     href={`#${n.id}`}
                     aria-current={isActive ? "location" : undefined}
-                    className={`relative inline-flex gap-1.5 py-4 transition-colors duration-200 hover:text-navy ${
-                      isActive ? "text-navy" : "text-mute"
+                    className={`relative inline-flex py-4 transition-colors duration-200 hover:text-navy ${
+                      isActive ? "text-navy" : "text-charcoal/75"
                     }`}
                   >
-                    <span className="opacity-60">{n.num}</span>
-                    <span>{n.label}</span>
+                    {n.label}
                     <span
                       aria-hidden="true"
                       className={`absolute inset-x-0 bottom-0 h-[2px] bg-accent transition-opacity duration-200 ${
@@ -65,7 +64,7 @@ export function Nav() {
 
         <button
           type="button"
-          className="font-mono text-[0.78rem] uppercase tracking-wider text-navy lg:hidden border border-rule px-3 py-1.5 rounded-sq"
+          className="text-[0.95rem] font-medium text-navy lg:hidden border border-rule px-3 py-1.5 rounded-sq"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((o) => !o)}
@@ -76,16 +75,15 @@ export function Nav() {
 
       {open && (
         <nav id="mobile-nav" aria-label="Sections" className="border-t border-rule lg:hidden">
-          <ul className="mx-auto max-w-[88rem] px-4 sm:px-6 font-mono text-sm uppercase tracking-wider">
+          <ul className="mx-auto max-w-[88rem] px-4 sm:px-6">
             {nav.map((n) => (
               <li key={n.id} className="border-b border-rule last:border-0">
                 <a
                   href={`#${n.id}`}
                   onClick={() => setOpen(false)}
                   aria-current={active === n.id ? "location" : undefined}
-                  className={`flex gap-4 py-3 ${active === n.id ? "text-navy" : "text-mute"}`}
+                  className={`flex py-3 ${active === n.id ? "text-navy" : "text-charcoal"}`}
                 >
-                  <span className="w-6 opacity-60">{n.num}</span>
                   {n.label}
                 </a>
               </li>

@@ -1,9 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { hero, mapRoutes, type MapRoute } from "@/content/site";
+import { hero, mapLanes, type MapLane } from "@/content/site";
 
-// Hand-drawn equirectangular chart of the south-west Pacific.
+// Hand-drawn equirectangular map of the south-west Pacific.
 // 10 units per degree. Chart spans 138°E → 102°W and 36°N → 46°S.
 const LON0 = 138;
 const LAT0 = 36;
@@ -76,30 +76,22 @@ const ISLETS: [number, number, number, number, number][] = [
 ];
 
 const SUVA = P(178.44, -18.14);
-const NADI = P(177.44, -17.76);
 
 type Pt = [number, number];
 
 function control(a: Pt, b: Pt, bend: number): Pt {
   const mx = (a[0] + b[0]) / 2;
   const my = (a[1] + b[1]) / 2;
-  const dx = b[0] - a[0];
-  const dy = b[1] - a[1];
-  return [mx - dy * bend, my + dx * bend];
+  return [mx - (b[1] - a[1]) * bend, my + (b[0] - a[0]) * bend];
 }
 
-function routeGeom(r: MapRoute, from: Pt, bend: number) {
-  if (r.exit) {
-    const end = P(r.exit.lon, r.exit.lat);
-    // Quadratic through `via` at t = 0.5
-    const c: Pt = r.exit.via
-      ? [2 * px(r.exit.via[0]) - (from[0] + end[0]) / 2, 2 * py(r.exit.via[1]) - (from[1] + end[1]) / 2]
-      : control(from, end, bend);
-    return { end, c, d: `M${from[0]} ${from[1]} Q${c[0]} ${c[1]} ${end[0]} ${end[1]}` };
-  }
-  const end = P(r.lon, r.lat);
-  const c = control(from, end, bend);
-  return { end, c, d: `M${from[0]} ${from[1]} Q${c[0]} ${c[1]} ${end[0]} ${end[1]}` };
+function laneGeom(l: MapLane) {
+  const end = l.exit ? P(l.exit.lon, l.exit.lat) : P(l.lon, l.lat);
+  // With `via`, pick the control point so the curve passes through it.
+  const c: Pt = l.exit?.via
+    ? [2 * px(l.exit.via[0]) - (SUVA[0] + end[0]) / 2, 2 * py(l.exit.via[1]) - (SUVA[1] + end[1]) / 2]
+    : control(SUVA, end, l.bend);
+  return { end, c, d: `M${SUVA[0]} ${SUVA[1]} Q${c[0]} ${c[1]} ${end[0]} ${end[1]}` };
 }
 
 function quadAt(a: Pt, c: Pt, b: Pt, t: number): Pt {
@@ -107,218 +99,104 @@ function quadAt(a: Pt, c: Pt, b: Pt, t: number): Pt {
   return [u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]];
 }
 
-const lonLabel = (lon: number) =>
-  lon === 180 ? "180°" : lon < 180 ? `${lon}°E` : `${360 - lon}°W`;
-const latLabel = (lat: number) => (lat === 0 ? "0°" : lat > 0 ? `${lat}°N` : `${-lat}°S`);
+const HULL = "M-10 -4.5 L6 -4.5 L11 0 L6 4.5 L-10 4.5 Z";
 
 export function RouteMap() {
   const reduce = useReducedMotion();
-  const vesselRoute = mapRoutes.find((r) => r.code === "USLAX")!;
-  const vessel = routeGeom(vesselRoute, SUVA, vesselRoute.bend);
-  const vesselStatic = quadAt(SUVA, vessel.c, vessel.end, 0.42);
+  const usa = laneGeom(mapLanes.find((l) => l.name === "USA")!);
+  const parked = quadAt(SUVA, usa.c, usa.end, 0.42);
 
-  const draw = (i: number) =>
-    reduce
-      ? { initial: false as const }
-      : {
-          initial: { pathLength: 0 },
-          animate: { pathLength: 1 },
-          transition: { duration: 1.4, delay: 0.3 + i * 0.12, ease: [0.4, 0, 0.2, 1] as const },
-        };
-
-  const summary =
-    "Chart of trade lanes from Fiji to " + mapRoutes.map((r) => r.city).join(", ") + ".";
+  const summary = `Map of sea lanes from Fiji to ${mapLanes.map((l) => l.name).join(", ")}.`;
 
   return (
-    <figure className="relative">
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="block h-auto w-full text-navy"
-        role="img"
-        aria-label={summary}
-      >
-        <style>{`
-          .m-code{font:500 19px var(--font-mono);letter-spacing:.04em}
-          .m-city{font:400 14px var(--font-mono);fill:var(--color-mute)}
-          .m-grid{font:400 13px var(--font-mono);fill:var(--color-mute)}
-          @media (max-width:640px){
-            .m-code{font-size:32px}
-            .m-city,.m-minor{display:none}
-            .m-grid{font-size:24px}
-          }
-        `}</style>
+    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full text-navy" role="img" aria-label={summary}>
+      <style>{`
+        .m-name{font:600 21px var(--font-display);fill:var(--color-charcoal)}
+        .m-place{font:400 15px var(--font-sans);fill:var(--color-mute)}
+        .m-fiji{font:700 30px var(--font-display);fill:var(--color-navy)}
+        @media (max-width:640px){
+          .m-name{font-size:38px}
+          .m-fiji{font-size:48px}
+          .m-place,.m-minor{display:none}
+        }
+      `}</style>
+      <defs>
+        <clipPath id="map-clip">
+          <rect width={W} height={H} />
+        </clipPath>
+      </defs>
 
-        <defs>
-          <clipPath id="chart">
-            <rect width={W} height={H} />
-          </clipPath>
-          {mapRoutes.map((r) => {
-            if (!r.modes.includes("air")) return null;
-            const g = routeGeom(r, NADI, -r.bend * 0.9);
-            return (
-              <mask id={`air-${r.code}`} key={r.code} maskUnits="userSpaceOnUse">
-                <motion.path d={g.d} stroke="#fff" strokeWidth="6" fill="none" {...draw(mapRoutes.length)} />
-              </mask>
-            );
-          })}
-        </defs>
-
-        <g clipPath="url(#chart)">
-          {/* Graticule */}
-          <g stroke="var(--color-rule)" strokeWidth="1">
-            {Array.from({ length: 12 }, (_, i) => 140 + i * 10).map((lon) => (
-              <line key={lon} x1={px(lon)} y1={0} x2={px(lon)} y2={H} />
-            ))}
-            {[30, 20, 10, -10, -20, -30, -40].map((lat) => (
-              <line key={lat} x1={0} y1={py(lat)} x2={W} y2={py(lat)} />
-            ))}
-            <line x1={0} y1={py(0)} x2={W} y2={py(0)} strokeDasharray="6 6" stroke="var(--color-mute)" strokeOpacity="0.5" />
-          </g>
-          <g className="m-grid" aria-hidden="true">
-            {[150, 170, 190, 210, 230, 250].map((lon) => (
-              <text key={lon} x={px(lon) + 6} y={H - 10}>
-                {lonLabel(lon)}
-              </text>
-            ))}
-            {[30, 0, -20, -40].map((lat) => (
-              <text key={lat} x={W - 10} y={py(lat) - 7} textAnchor="end">
-                {lat === 0 ? "EQUATOR 0°" : latLabel(lat)}
-              </text>
-            ))}
-          </g>
-
-          {/* Land */}
-          <g fill="var(--color-paper-2)" stroke="var(--color-charcoal)" strokeWidth="0.9" strokeLinejoin="round">
-            {LAND.map((d, i) => (
-              <path key={i} d={d} />
-            ))}
-            {ISLETS.map(([lo, la, rx, ry, rot], i) => (
-              <ellipse
-                key={i}
-                cx={px(lo)}
-                cy={py(la)}
-                rx={rx}
-                ry={ry}
-                transform={`rotate(${rot} ${px(lo)} ${py(la)})`}
-              />
-            ))}
-          </g>
-
-          {/* Sea lanes */}
-          <g fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            {mapRoutes.map((r, i) => {
-              if (!r.modes.includes("sea")) return null;
-              const g = routeGeom(r, SUVA, r.bend);
-              return (
-                <motion.path
-                  key={r.code}
-                  id={`sea-${r.code}`}
-                  d={g.d}
-                  className={r.minor ? "m-minor" : undefined}
-                  {...draw(i)}
-                />
-              );
-            })}
-          </g>
-
-          {/* Air lanes, dashed, revealed through masks */}
-          <g fill="none" stroke="currentColor" strokeWidth="1.3" strokeDasharray="2 6" strokeLinecap="round">
-            {mapRoutes.map((r) => {
-              if (!r.modes.includes("air")) return null;
-              const g = routeGeom(r, NADI, -r.bend * 0.9);
-              return <path key={r.code} d={g.d} mask={`url(#air-${r.code})`} />;
-            })}
-          </g>
-
-          {/* Destinations */}
-          {mapRoutes.map((r, i) => {
-            const g = routeGeom(r, SUVA, r.bend);
-            const [x, y] = g.end;
-            const left = r.labelSide === "l";
-            const dy = r.labelDy ?? 0;
-            const tx = r.exit ? x + 14 : left ? x - 12 : x + 12;
-            const anchor = r.exit ? "start" : left ? "end" : "start";
-            return (
-              <motion.g
-                key={r.code}
-                className={r.minor ? "m-minor" : undefined}
-                initial={reduce ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: 1.2 + i * 0.12 }}
-                aria-hidden="true"
-              >
-                {r.exit ? (
-                  <path d={`M${x + 10} ${y - 6} L${x} ${y} L${x + 10} ${y + 6}`} fill="none" stroke="currentColor" strokeWidth="1.6" />
-                ) : (
-                  <rect x={x - 4} y={y - 4} width="8" height="8" fill="var(--color-paper)" stroke="currentColor" strokeWidth="1.6" />
-                )}
-                <text x={tx} y={y + dy - 2} textAnchor={anchor} className="m-code" fill="currentColor">
-                  {r.code}
-                </text>
-                <text x={tx} y={y + dy + 15} textAnchor={anchor} className="m-city">
-                  {r.exit ? `${r.city} · ${hero.map.offChart}` : r.city}
-                </text>
-              </motion.g>
-            );
-          })}
-
-          {/* Origin: Fiji */}
-          <g aria-hidden="true">
-            <circle cx={SUVA[0]} cy={SUVA[1]} r="13" fill="none" stroke="currentColor" strokeWidth="1" />
-            <circle cx={SUVA[0]} cy={SUVA[1]} r="5" fill="currentColor" />
-            <path
-              d={`M${SUVA[0] + 9} ${SUVA[1] + 9} L${SUVA[0] + 70} ${SUVA[1] + 110} L${SUVA[0] + 96} ${SUVA[1] + 110}`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-            />
-            <text x={SUVA[0] + 102} y={SUVA[1] + 108} className="m-code" fill="currentColor" style={{ fontWeight: 600 }}>
-              FJSUV · FJLTK · NAN
-            </text>
-            <text x={SUVA[0] + 102} y={SUVA[1] + 126} className="m-city">
-              Fiji — Suva · Lautoka · Nadi
-            </text>
-          </g>
-
-          {/* Vessel — replace path or timing in content if needed */}
-          <g aria-hidden="true">
-            {reduce ? (
-              <path
-                d="M-9 -4 L5 -4 L10 0 L5 4 L-9 4 Z"
-                fill="var(--color-accent)"
-                transform={`translate(${vesselStatic[0]} ${vesselStatic[1]}) rotate(-38)`}
-              />
-            ) : (
-              <path d="M-9 -4 L5 -4 L10 0 L5 4 L-9 4 Z" fill="var(--color-accent)" opacity="0">
-                <set attributeName="opacity" to="1" begin="2.2s" />
-                <animateMotion dur="16s" begin="2.2s" repeatCount="indefinite" rotate="auto" path={vessel.d} />
-              </path>
-            )}
-          </g>
+      <g clipPath="url(#map-clip)">
+        <g fill="var(--color-paper-2)">
+          {LAND.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+          {ISLETS.map(([lo, la, rx, ry, rot], i) => (
+            <ellipse key={i} cx={px(lo)} cy={py(la)} rx={rx + 1} ry={ry + 1} transform={`rotate(${rot} ${px(lo)} ${py(la)})`} />
+          ))}
         </g>
 
-        <rect x="0.5" y="0.5" width={W - 1} height={H - 1} fill="none" stroke="var(--color-charcoal)" strokeWidth="1" />
-      </svg>
+        <g fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+          {mapLanes.map((l, i) => (
+            <motion.path
+              key={l.name}
+              d={laneGeom(l).d}
+              initial={reduce ? false : { pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 1.4, delay: 0.2 + i * 0.1, ease: [0.4, 0, 0.2, 1] }}
+            />
+          ))}
+        </g>
 
-      <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 font-mono text-[0.72rem] uppercase tracking-wider text-mute">
-        <span>
-          <span className="text-charcoal">{hero.map.figure}</span> — {hero.map.caption}
-        </span>
-        <span className="flex flex-wrap gap-x-5 gap-y-1" aria-hidden="true">
-          <span className="inline-flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="var(--color-navy)" strokeWidth="1.6" /></svg>
-            {hero.map.legend.sea}
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <svg width="22" height="6"><line x1="1" y1="3" x2="22" y2="3" stroke="var(--color-navy)" strokeWidth="1.4" strokeDasharray="2 4" strokeLinecap="round" /></svg>
-            {hero.map.legend.air}
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <svg width="14" height="8" viewBox="-9 -4 19 8"><path d="M-9 -4 L5 -4 L10 0 L5 4 L-9 4 Z" fill="var(--color-accent)" /></svg>
-            {hero.map.legend.vessel}
-          </span>
-        </span>
-      </figcaption>
-    </figure>
+        {mapLanes.map((l, i) => {
+          const { end } = laneGeom(l);
+          const [x, y] = end;
+          const left = l.label === "l";
+          const dy = l.dy ?? 0;
+          const tx = l.exit ? x + 18 : left ? x - 14 : x + 14;
+          const anchor = l.exit || !left ? "start" : "end";
+          return (
+            <motion.g
+              key={l.name}
+              className={l.minor ? "m-minor" : undefined}
+              initial={reduce ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1.1 + i * 0.1 }}
+              aria-hidden="true"
+            >
+              {l.exit ? (
+                <path d={`M${x + 12} ${y - 7} L${x + 1} ${y} L${x + 12} ${y + 7}`} fill="none" stroke="currentColor" strokeWidth="2.2" />
+              ) : (
+                <circle cx={x} cy={y} r="5" fill="var(--color-paper)" stroke="currentColor" strokeWidth="2.2" />
+              )}
+              <text x={tx} y={y + dy + 2} textAnchor={anchor} className="m-name">
+                {l.name}
+              </text>
+              <text x={tx} y={y + dy + 21} textAnchor={anchor} className="m-place">
+                {l.exit ? `${l.place}, ${hero.map.offChart}` : l.place}
+              </text>
+            </motion.g>
+          );
+        })}
+
+        <g aria-hidden="true">
+          <circle cx={SUVA[0]} cy={SUVA[1]} r="8" fill="currentColor" />
+          <text x={SUVA[0] + 6} y={SUVA[1] + 46} className="m-fiji">
+            Fiji
+          </text>
+        </g>
+
+        <g aria-hidden="true">
+          {reduce ? (
+            <path d={HULL} fill="var(--color-accent)" transform={`translate(${parked[0]} ${parked[1]}) rotate(-38)`} />
+          ) : (
+            <path d={HULL} fill="var(--color-accent)" opacity="0">
+              <set attributeName="opacity" to="1" begin="2s" />
+              <animateMotion dur="16s" begin="2s" repeatCount="indefinite" rotate="auto" path={usa.d} />
+            </path>
+          )}
+        </g>
+      </g>
+    </svg>
   );
 }

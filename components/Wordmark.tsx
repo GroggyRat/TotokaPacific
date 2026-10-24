@@ -14,7 +14,7 @@ export function Mark({ className = "" }: { className?: string }) {
 
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 font-display font-semibold uppercase tracking-[0.04em] ${className}`}>
+    <span className={`inline-flex items-center gap-2 font-display font-bold uppercase tracking-[0.06em] [font-stretch:88%] ${className}`}>
       <Mark className="h-[1.05em] w-[1.05em] shrink-0" />
       <span>{company.name}</span>
     </span>

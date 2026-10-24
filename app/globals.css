@@ -8,15 +8,15 @@
     3. contact form submit button
 */
 @theme {
-  --color-navy: #14233f;
-  --color-paper: #f2efe6;
-  --color-paper-2: #e6e1d3;
-  --color-charcoal: #232528;
-  --color-mute: #5d6066;
-  --color-rule: #23252833;
+  --color-navy: #16284a;
+  --color-paper: #f6f5f1;
+  --color-paper-2: #e7e5de;
+  --color-charcoal: #1f2124;
+  --color-mute: #62656b;
+  --color-rule: #1f21241f;
   --color-accent: #e0561b;
 
-  --font-display: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --font-display: var(--font-archivo), "Arial Narrow", sans-serif;
   --font-sans: var(--font-inter-tight), system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
