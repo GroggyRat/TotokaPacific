@@ -33,7 +33,7 @@ export function Header() {
   }, []);
 
   return (
-    <header ref={root} className="fixed inset-x-0 top-0 z-50 text-white mix-blend-difference">
+    <header ref={root} className="absolute inset-x-0 top-0 z-50 text-white mix-blend-difference">
       <div className="flex items-center justify-between gap-6 px-5 py-5 sm:px-10 sm:py-7">
         <a href="#top" aria-label="Totoka Pacific, back to top" className="whitespace-nowrap text-[0.8rem] sm:text-base">
           <Wordmark />
