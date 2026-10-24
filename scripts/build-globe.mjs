@@ -22,7 +22,8 @@ for (let i = 0; i < N; i++) {
   if (geoContains(land, [lon, lat])) pts.push(Math.round(lat * 100), Math.round(lon * 100));
 }
 const buf = Buffer.from(new Int16Array(pts).buffer);
-fs.writeFileSync("public/data/land-dots.bin", buf);
+// Base64 text so it is served as a plain .txt file everywhere.
+fs.writeFileSync("public/data/land-dots.txt", buf.toString("base64"));
 console.log("land dots:", pts.length / 2, (buf.length / 1024).toFixed(1) + "KB");
 
 // Static fallback: orthographic view centred on Fiji.

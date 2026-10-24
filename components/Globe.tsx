@@ -124,11 +124,14 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
   // Land dots, fetched after first paint.
   useEffect(() => {
     let alive = true;
-    fetch(new URL("data/land-dots.bin", document.baseURI))
-      .then((r) => r.arrayBuffer())
-      .then((buf) => {
+    fetch(new URL("data/land-dots.txt", document.baseURI))
+      .then((r) => r.text())
+      .then((b64) => {
         if (!alive) return;
-        const ints = new Int16Array(buf);
+        const bin = atob(b64.trim());
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const ints = new Int16Array(bytes.buffer);
         const every = low ? 2 : 1; // phones draw half the dots
         const pos: number[] = [];
         for (let i = 0; i < ints.length; i += 2 * every) {
