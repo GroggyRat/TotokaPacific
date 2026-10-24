@@ -1,12 +1,43 @@
-export function SectionLabel({ num, label, aside }: { num: string; label: string; aside?: string }) {
+// Small, quiet section number and name.
+export function SectionLabel({ num, label }: { num: string; label: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-t border-charcoal pt-3 font-mono text-[0.75rem] uppercase tracking-[0.12em]">
-      <span>
-        <span className="text-navy">{num}</span>
-        <span className="mx-2 text-mute">/</span>
-        {label}
-      </span>
-      {aside && <span className="text-mute">{aside}</span>}
-    </div>
+    <p className="flex items-baseline gap-3 text-sm text-mute">
+      <span className="font-mono text-xs tabular-nums">{num}</span>
+      <span>{label}</span>
+    </p>
+  );
+}
+
+export function Section({
+  id,
+  num,
+  label,
+  className = "",
+  children,
+}: {
+  id: string;
+  num: string;
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} aria-labelledby={`${id}-title`} className={`mx-auto max-w-[88rem] px-4 sm:px-6 lg:px-10 ${className}`}>
+      <div className="border-t border-rule pt-5">
+        <SectionLabel num={num} label={label} />
+      </div>
+      {children}
+    </section>
+  );
+}
+
+export function SectionHeading({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) {
+  return (
+    <h2
+      id={`${id}-title`}
+      className={`font-display text-[clamp(2rem,4vw,3.4rem)] font-semibold leading-[1.04] tracking-[-0.02em] text-navy [font-stretch:92%] ${className}`}
+    >
+      {children}
+    </h2>
   );
 }

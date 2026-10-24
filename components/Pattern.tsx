@@ -4,7 +4,9 @@ export function PatternStrip({
   className = "",
   height = 14,
   opacity = 0.22,
+  tone = "text-navy",
 }: {
+  tone?: string;
   className?: string;
   height?: number;
   opacity?: number;
@@ -12,7 +14,7 @@ export function PatternStrip({
   const id = `masi-${height}`;
   return (
     <svg
-      className={`block w-full text-navy ${className}`}
+      className={`block w-full ${tone} ${className}`}
       height={height}
       aria-hidden="true"
       focusable="false"

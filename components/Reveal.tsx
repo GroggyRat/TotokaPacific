@@ -21,7 +21,7 @@ export function RevealGroup({
 }: {
   children: React.ReactNode;
   className?: string;
-  as?: "div" | "ul" | "ol" | "dl";
+  as?: "div" | "ul" | "ol" | "dl" | "tbody";
   immediate?: boolean;
 }) {
   const M = motion[as];
@@ -44,7 +44,7 @@ export function Reveal({
 }: {
   children: React.ReactNode;
   className?: string;
-  as?: "div" | "li" | "p" | "span";
+  as?: "div" | "li" | "p" | "span" | "tr";
 }) {
   const M = motion[as];
   return (
