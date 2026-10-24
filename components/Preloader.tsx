@@ -99,9 +99,8 @@ export function Preloader() {
           <Mark className="pl-mark h-[0.7em] w-[0.7em] shrink-0 text-accent sm:h-[0.85em] sm:w-[0.85em]" />
           <h2 ref={word} className="invisible font-display font-light leading-[0.95] tracking-[0.06em] sm:whitespace-nowrap">
             {preloader.word.split(" ").map((w, i) => (
-              <span key={i} className="block sm:inline">
+              <span key={i} className={`block sm:inline-block ${i > 0 ? "sm:ml-[0.4em]" : ""}`}>
                 {w}
-                {i === 0 && <span className="hidden sm:inline"> </span>}
               </span>
             ))}
           </h2>

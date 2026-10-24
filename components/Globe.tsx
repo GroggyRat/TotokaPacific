@@ -75,7 +75,7 @@ const dotsFrag = /* glsl */ `
   void main() {
     vec2 c = gl_PointCoord - 0.5;
     if (dot(c, c) > 0.25) discard;
-    gl_FragColor = vec4(mix(uColor, uGold, vNear), vAlpha * mix(0.55, 1.0, vNear));
+    gl_FragColor = vec4(mix(uColor, uGold, vNear), vAlpha * mix(0.68, 1.0, vNear));
   }
 `;
 const glowVert = /* glsl */ `
@@ -187,7 +187,7 @@ function Scene({ low, onReady }: { low: boolean; onReady: () => void }) {
         transparent: true,
         depthWrite: false,
         uniforms: {
-          uSize: { value: (low ? 6.4 : 4.6) * dpr },
+          uSize: { value: (low ? 6.4 : 5.6) * dpr },
           uOpacity: { value: 1 },
           uBoost: { value: low ? 1.35 : 1 },
           uColor: { value: now.dot.clone() },
