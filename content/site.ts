@@ -14,66 +14,58 @@ export const company = {
 };
 
 export const nav = [
-  { id: "about", num: "02", label: "About" },
-  { id: "services", num: "03", label: "Services" },
-  { id: "routes", num: "04", label: "Routes" },
-  { id: "process", num: "05", label: "Process" },
-  { id: "founder", num: "06", label: "Founder" },
-  { id: "faq", num: "07", label: "FAQ" },
-  { id: "contact", num: "08", label: "Contact" },
+  { id: "about", label: "About" },
+  { id: "services", label: "Services" },
+  { id: "voyage", label: "Voyage" },
+  { id: "process", label: "Process" },
+  { id: "faq", label: "FAQ" },
+  { id: "contact", label: "Contact" },
 ];
 
+export const header = {
+  clockLabel: "Suva",
+  clockZone: "Pacific/Fiji",
+  clockSuffix: "FJT",
+  cta: "Get in touch",
+};
+
+// ── 00 Preloader ────────────────────────────────────────────────────────────
+export const preloader = {
+  word: "TOTOKA PACIFIC",
+  caption: "Suva · Fiji",
+};
+
+// ── 01 Hero ─────────────────────────────────────────────────────────────────
 export const hero = {
-  eyebrow: "Totoka Pacific · Suva, Fiji",
-  heading: "We bring cargo into Fiji and send Fiji cargo out.",
+  label: "Import · Export · Customs",
+  coords: "18°08′S 178°25′E",
+  lines: ["Suva to", "anywhere."],
   sentence:
-    "Sea freight through Suva and Lautoka, air freight through Nadi. We do the customs entries ourselves.",
-  cta: { label: "Get in touch", href: "#contact" },
-  // TODO: replace with a real photo, e.g. /photos/hero-wharf.jpg (2400×1000 or wider)
-  photo: {
-    src: "",
-    alt: "Container stacks on the wharf at Lautoka, with the hills of Viti Levu behind",
-    note: "Photo: Lautoka wharf, container yard",
-  },
-  map: {
-    title: "Where our cargo goes",
-    note: "Sea lanes from Suva and Lautoka. Air cargo leaves from Nadi.",
-    offChart: "off map",
-  },
+    "We move cargo in and out of Fiji. Sea freight through Suva and Lautoka, air through Nadi, customs entries done in-house.",
+  scroll: "Scroll",
+  drag: "Drag",
+  // Optional looping hero video, muted. Leave empty to show the globe only.
+  // TODO: e.g. /video/hero-ships.mp4 (H.264, 1920×1080, under 4 MB) and a poster image.
+  video: { src: "", poster: "" },
 };
 
-// Lanes drawn on the hero map. lon is degrees east (0–360), so the
-// Americas use values above 180. Lanes that leave the map use `exit`.
-export type MapLane = {
-  name: string;
-  place: string;
-  lon: number;
-  lat: number;
-  bend: number; // curve amount, sign sets side
-  label: "l" | "r";
-  dy?: number;
-  minor?: boolean; // label hidden on small screens
-  exit?: { lon: number; lat: number; via?: [number, number] };
+// Destinations drawn as arcs on the globe. Keep in sync with scripts/globe-points.mjs.
+export const globe = {
+  origin: { name: "Suva", lat: -18.14, lon: 178.44 },
+  destinations: [
+    { name: "Brisbane", lat: -27.47, lon: 153.03 },
+    { name: "Sydney", lat: -33.87, lon: 151.21 },
+    { name: "Auckland", lat: -36.85, lon: 174.76 },
+    { name: "Shanghai", lat: 31.23, lon: 121.47 },
+    { name: "Nhava Sheva", lat: 18.95, lon: 72.95 },
+    { name: "Los Angeles", lat: 33.74, lon: -118.24 },
+    { name: "Apia", lat: -13.83, lon: -171.77 },
+    { name: "Nuku‘alofa", lat: -21.14, lon: -175.2 },
+    { name: "Port Vila", lat: -17.73, lon: 168.32 },
+    { name: "Honiara", lat: -9.43, lon: 159.95 },
+    { name: "Tarawa", lat: 1.42, lon: 172.98 },
+  ],
 };
-
-export const mapLanes: MapLane[] = [
-  { name: "Australia", place: "Brisbane, Sydney", lon: 153.03, lat: -27.47, bend: 0.14, label: "r", dy: 30 },
-  { name: "New Zealand", place: "Auckland", lon: 174.76, lat: -36.85, bend: -0.2, label: "r" },
-  { name: "USA", place: "Los Angeles", lon: 241.76, lat: 33.74, bend: 0.16, label: "r", dy: 8 },
-  { name: "Samoa", place: "Apia", lon: 188.23, lat: -13.83, bend: 0.3, label: "r", minor: true },
-  { name: "Tonga", place: "Nuku‘alofa", lon: 184.8, lat: -21.14, bend: -0.3, label: "r", dy: 8, minor: true },
-  { name: "China", place: "Shanghai, Ningbo", lon: 121.47, lat: 31.23, bend: 0.08, label: "r", dy: -28, exit: { lon: 138, lat: 22 } },
-  {
-    name: "India",
-    place: "via Singapore",
-    lon: 72.95,
-    lat: 18.95,
-    bend: 0,
-    label: "r",
-    dy: 30,
-    exit: { lon: 138, lat: -10.1, via: [158, -13.5] },
-  },
-];
 
 // ── 02 About ────────────────────────────────────────────────────────────────
 // TODO: confirm the company story with the founder.

@@ -1,29 +1,22 @@
-import { Nav } from "@/components/Nav";
+import { Preloader } from "@/components/Preloader";
+import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { About } from "@/components/About";
-import { Services } from "@/components/Services";
-import { Routes } from "@/components/Routes";
-import { Process } from "@/components/Process";
-import { Founder } from "@/components/Founder";
-import { Faq } from "@/components/Faq";
-import { Contact } from "@/components/Contact";
-import { Footer } from "@/components/Footer";
+import { about } from "@/content/site";
 
 export default function Home() {
   return (
     <>
-      <Nav />
+      <Preloader />
+      <Header />
       <main id="main">
         <Hero />
-        <About />
-        <Services />
-        <Routes />
-        <Process />
-        <Founder />
-        <Faq />
-        <Contact />
+        {/* Step 2 starts here. Temporary end-of-hero stand-in so the dissolve has somewhere to land. */}
+        <section id="about" className="relative flex min-h-[100svh] items-center bg-ink-2 px-5 sm:px-10">
+          <p className="label text-mist">
+            {about.num} — {about.label} · next section, built in step 2
+          </p>
+        </section>
       </main>
-      <Footer />
     </>
   );
 }
