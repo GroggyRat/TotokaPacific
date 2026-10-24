@@ -259,4 +259,5 @@ export const footer = {
   line: "Import, export and customs clearance from Suva, Fiji.",
   copyright: `© ${new Date().getFullYear()} ${company.legalName}`,
   top: "Back to top",
+  credit: "Made by KaiTech",
 };

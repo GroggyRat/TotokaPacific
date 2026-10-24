@@ -68,6 +68,7 @@ export function Footer() {
 
       <div className="label mt-8 flex flex-wrap justify-between gap-4 border-t border-fg/10 px-5 py-6 text-mist sm:px-10">
         <span>{footer.copyright}</span>
+        <span>{footer.credit}</span>
         <a href="#top" className="hover:text-fg">
           {footer.top} ↑
         </a>
